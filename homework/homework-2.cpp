@@ -20,8 +20,10 @@ public:
     const string& getName() const {return this->name;}
     const unsigned int getScore() const {return this->score;}
 
-    string operator= (const string& name) const {return "Score(" + name + ";" + to_string(score) + ")";}
-
+    //string operator= (const string& name) const {return "Score(" + name + ";" + to_string(score) + ")";}
+    explicit operator string () {
+        return "Score(" + name + ";" + to_string(score) + ")";
+    }
 };
 
 class Test {
@@ -30,6 +32,8 @@ class Test {
     vector<Score> scores;
 
 public:
+    Test(const string& name, const unsigned int maxScore) : name(name), maxScore(maxScore) {}
+
     const string& getName() const {return this->name;}
     Score insert(const string& name, const unsigned int score) {
         if (score > maxScore) {
@@ -60,7 +64,6 @@ public:
     }
 
     friend ostream& operator<< (ostream& os, const Test& test) {
-
         string listOfScores;
         for (int i = 0; i < test.count(); i++) {
             auto var = test[i].getName();
@@ -81,7 +84,7 @@ public:
 
 class Course {
     string name;
-    set<Test> tests;
+    map<string, Test> tests;
 
 public:
     Course(const string& name) : name(name) {}
@@ -90,13 +93,11 @@ public:
         return this->name;
     }
 
-    friend Course& operator<<  (Course& course, const Test& test) {
-        set<Test>::iterator iter;
-        for (iter = course.tests.begin(); iter != course.tests.end(); ++iter) {
-            if (iter->getName() == test.getName()) { throw invalid_argument("already exists"); }
-        }
-        course.tests.insert(test);
-
+    friend const Course& operator<< (Course& course, const Test& test) {
+        string testName = test.getName();
+        if (course.tests.contains(testName)) { throw invalid_argument("already exists");}
+        course.tests.insert({testName, test});
+        return course;
     }
 
     unsigned int count() const {
@@ -104,16 +105,52 @@ public:
     }
 
     Test& operator[] (const string& testName) {
-        for (auto iter : tests) {
-            if (iter.getName() == testName) {return iter;}
-        }
-
+        auto it = tests.find(testName);
+        if (it == tests.end()) throw std::out_of_range("incorrect key");
+        return it->second;
     }
 
     const Test& operator[] (const string& testName) const {
-
+        auto it = tests.find(testName);
+        if (it == tests.end()) throw std::out_of_range("incorrect key");
+        return it->second;
     }
 
+    operator unsigned int() const {
+        unsigned int result = 0;
+        //for (auto it = tests.begin(); it != tests.end(); it++){}
+        for (const auto& [n, t] : tests) {
+            result += t.best();
+        }
+        return result;
+    }
+
+    set<string> testNames() const {
+        set<string> result;
+        for (const auto& [n, t] : tests) {
+            result.insert(n);
+        }
+        return result;
+    }
+
+    Course operator+ (const Course& other) const {
+        if (this->name != other.name) {throw invalid_argument("incompatible");}
+        Course combined = Course(this->name);
+        for (const auto& [n,t] : this->tests) {
+            combined << t;
+        }
+        for (const auto& [n,t] : other.tests) {
+            combined << t;
+        }
+        return combined;
+    }
+
+    Course& operator- (const string& testName) {
+        if (tests.contains(testName)) {
+            tests.erase(testName);
+            return *this;
+        }
+    }
 };
 
 #ifndef TEST_BIRO
