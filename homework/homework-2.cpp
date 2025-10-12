@@ -21,7 +21,7 @@ public:
     const unsigned int getScore() const {return this->score;}
 
     //string operator= (const string& name) const {return "Score(" + name + ";" + to_string(score) + ")";}
-    explicit operator string () {
+    explicit operator string () const {
         return "Score(" + name + ";" + to_string(score) + ")";
     }
 };
@@ -34,7 +34,19 @@ class Test {
 public:
     Test(const string& name, const unsigned int maxScore) : name(name), maxScore(maxScore) {}
 
+    Score operator()(const string& name, const unsigned int score) {
+        if (score > maxScore) {
+            Score newScore = Score(name, maxScore);
+            scores.push_back(newScore);
+            return newScore;
+        }
+        Score newScore = Score(name, score);
+        scores.push_back(newScore);
+        return newScore;
+    }
+
     const string& getName() const {return this->name;}
+    
     Score insert(const string& name, const unsigned int score) {
         if (score > maxScore) {
             Score newScore = Score(name, maxScore);
@@ -57,20 +69,18 @@ public:
 
     unsigned int best() const {
         unsigned int currentScore = 0;
-        for (int i = 0; i < scores.size(); i++) {
+        for (unsigned i = 0; i < scores.size(); i++) {
             if (scores[i].getScore() > currentScore) {currentScore = scores[i].getScore();}
         }
         return currentScore;
     }
 
     friend ostream& operator<< (ostream& os, const Test& test) {
-        string listOfScores;
-        for (int i = 0; i < test.count(); i++) {
-            auto var = test[i].getName();
-            listOfScores += var + ",\n";
+        os << "Test(" << test.getName() << ")[\n";
+        for (size_t i = 0; i < test.count(); ++i) {
+            os << static_cast<std::string>(test[i]) << ",\n";
         }
-
-        os << "Test(" <<test.getName() << ")[\n" << listOfScores << "]";
+        os << "]\n";
         return os;
     }
 
@@ -93,10 +103,10 @@ public:
         return this->name;
     }
 
-    friend const Course& operator<< (Course& course, const Test& test) {
+    friend Course& operator<< (Course& course, const Test& test) {
         string testName = test.getName();
         if (course.tests.contains(testName)) { throw invalid_argument("already exists");}
-        course.tests.insert({testName, test});
+        course.tests.emplace(testName, test);
         return course;
     }
 
@@ -145,11 +155,9 @@ public:
         return combined;
     }
 
-    Course& operator- (const string& testName) {
-        if (tests.contains(testName)) {
-            tests.erase(testName);
-            return *this;
-        }
+    Course& operator-= (const string& testName) {
+        tests.erase(testName);
+        return *this;
     }
 };
 
