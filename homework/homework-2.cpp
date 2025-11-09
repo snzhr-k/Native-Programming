@@ -46,7 +46,7 @@ public:
     }
 
     const string& getName() const {return this->name;}
-    
+
     Score insert(const string& name, const unsigned int score) {
         if (score > maxScore) {
             Score newScore = Score(name, maxScore);
@@ -159,12 +159,17 @@ public:
         tests.erase(testName);
         return *this;
     }
+
+
 };
 
 #ifndef TEST_BIRO
 // DO NOT WORK HERE!
 
 int main() {
+
+    
+
     std::cout << "# Score" << std::endl;
     {
         const unsigned score = 10;

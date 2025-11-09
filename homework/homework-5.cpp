@@ -12,6 +12,7 @@ struct Traveller{
     operator std::string() const{
         return nev + " " + std::to_string(tomeg);
     }
+
 };
 
 
@@ -19,27 +20,73 @@ struct Traveller{
 using namespace std;
     class StargateException: public std::exception {
         string message;
-        public:
-        StargateException(const string& message):message(message){}
+        string fullMessage;
 
-        virtual const char* what() {
-            return "Stargate error " + to_string(this->message);
+        public:
+        StargateException(const string& msg):message(msg), fullMessage("Stargate error: " + msg){}
+
+        const char* what() const noexcept override final {
+            return fullMessage.c_str();
         }
     };
 
     class Port{
-        string address;
+        const string address;
+        bool activation_status = false;
 
 
         public:
-        Port(const string& address):address(address){}
+        Port(const string& addrs):address(addrs){}
 
-        const string& getAddress(){
-            return this->address;
+        const string& getAddress() const {return this->address;}
+
+        virtual void operator! () {this->activation_status = !this->activation_status;}
+
+        bool isActivated () const {return activation_status;}
+
+        virtual string enter(const Traveller& p) {
+            if (activation_status){return "Travel:" + string(p) + " Destination:" + getAddress();}
+            throw std::runtime_error("inactive port");
         }
-
-
     };
+
+class StargatePort : public Port{
+    unsigned int load_capacity;
+
+public:
+    StargatePort(const string& adrs, unsigned int cp) : Port(adrs), load_capacity(cp){}
+
+    void setCapacity(const unsigned int cp){this->load_capacity = cp;}
+    unsigned int getCapacity() const {return this->load_capacity;}
+
+    void operator!() override {
+        if (load_capacity != 0) {
+            Port::operator!();
+        }
+    }
+
+    virtual string enter(const Traveller& p) override {
+        if (!isActivated()) {throw std::runtime_error("inactive port");}
+        if (p.tomeg > load_capacity){throw StargateException("over the capacity");}
+
+        load_capacity -= p.tomeg;
+        return Port::enter(p);
+    }
+};
+
+unsigned travelOrganization(const vector<Traveller>& passengers, Port& port, ostream& os) {
+    unsigned int failed_count = 0;
+
+
+    for (const Traveller& passenger : passengers ) {
+        try {
+            os << port.enter(passenger)<< '\n';
+        }catch (const exception& e ){++failed_count;}
+    }
+
+
+    return failed_count;
+}
 
 //DO NOT WRITE ANY CODE BELOW THIS LINE
 #ifndef TEST_BIRO
