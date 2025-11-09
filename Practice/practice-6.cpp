@@ -178,6 +178,7 @@ bool less(const UFO& a, const UFO& b) {
 }
 
 
+
 int main() {
     UFO ufo;
     Cow cow1("Riska", 70);

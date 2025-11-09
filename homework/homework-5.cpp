@@ -1,0 +1,151 @@
+#include <iostream>
+#include <string>
+#include <stdexcept>
+#include <vector>
+#include <cassert>
+#include <sstream>
+
+struct Traveller{
+    std::string nev;
+    unsigned tomeg;
+
+    operator std::string() const{
+        return nev + " " + std::to_string(tomeg);
+    }
+};
+
+
+//WORK HERE!
+using namespace std;
+    class StargateException: public std::exception {
+        string message;
+        public:
+        StargateException(const string& message):message(message){}
+
+        virtual const char* what() {
+            return "Stargate error " + to_string(this->message);
+        }
+    };
+
+    class Port{
+        string address;
+
+
+        public:
+        Port(const string& address):address(address){}
+
+        const string& getAddress(){
+            return this->address;
+        }
+
+
+    };
+
+//DO NOT WRITE ANY CODE BELOW THIS LINE
+#ifndef TEST_BIRO
+
+int main() {
+
+    {
+        const Port p("Some port");
+        std::string address = p.getAddress();
+        bool activated = p.isActivated();
+        assert(!activated);
+        assert(address == "Some port");
+
+    }
+
+    {
+        Port p("Some port");
+        bool activated = p.isActivated();
+        assert(!activated);
+        !p;
+        activated = p.isActivated();
+        assert(activated);
+    }
+
+    {
+        Port p("Some port");
+        !p;
+        bool activated = p.isActivated();
+        assert(activated);
+        Traveller u{"Carlos", 100};
+        std::string result = p.enter(u);
+        assert(result == "Travel:Carlos 100 Destination:Some port");
+    }
+
+    {
+        Port p("Some port");
+        bool activated = p.isActivated();
+        assert(!activated);
+        Traveller u{"Carlos", 100};
+        try{
+            p.enter(u);
+            assert(false);
+        }catch(std::runtime_error&){
+            assert(true);
+        }
+    }
+
+    {
+        StargatePort csp("Abydos01", 300);
+        unsigned tomeg = csp.getCapacity();
+        assert(tomeg == 300);
+        csp.setCapacity(0);
+        tomeg = csp.getCapacity();
+        assert(tomeg == 0);
+    }
+
+    {
+        StargatePort csp("Abydos01", 0);
+        !csp;
+        bool activated = csp.isActivated();
+        assert(!activated);
+    }
+
+    {
+        StargatePort csp("Abydos01", 100);
+        !csp;
+        Traveller u{"Carlos", 200};
+        try{
+            csp.enter(u);
+            assert(false);
+        }catch(const StargateException& csk){
+            std::string result = csk.what();
+            assert(result == "Stargate error: over the capacity");
+            assert(csp.getCapacity() == 100);
+        }
+    }
+
+    {
+        StargatePort csp("Abydos01", 500);
+        !csp;
+        Traveller u{"Carlos", 200};
+        std::string result = csp.enter(u);
+        assert(result == "Travel:Carlos 200 Destination:Abydos01");
+        assert(csp.getCapacity() == 300);
+    }
+
+
+    {
+        StargatePort csp("Abydos01", 300);
+        const std::vector<Traveller> passengerok = {{"Peter", 200}, {"Donald", 2}, {"Julia", 100}};
+        std::ostringstream oss1;
+        unsigned res = travelOrganization(passengerok, csp, oss1);
+        std::string result1 = oss1.str();
+        assert(result1 == "");
+        assert(res == 3);
+
+        !csp;
+        std::ostringstream oss2;
+        res = travelOrganization(passengerok, csp, oss2);
+        std::string result2 = oss2.str();
+        assert(result2 == "Travel:Peter 200 Destination:Abydos01\nTravel:Donald 2 Destination:Abydos01\n");
+        assert(res == 1);
+    }
+
+    return 0;
+}
+
+
+#endif
