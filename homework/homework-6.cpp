@@ -8,8 +8,9 @@ class IlluminatedOrnament {
   bool is_turned;
 
 public:
-  IlluminatedOrnament(unsigned int brightness, bool is_turned):brightness(brightness), is_turned(is_turned){}
+  IlluminatedOrnament(const unsigned int brightness, const bool is_turned):brightness(brightness), is_turned(is_turned){}
   IlluminatedOrnament() : brightness(0), is_turned(false){}
+  IlluminatedOrnament(const unsigned int brightness) : brightness(brightness), is_turned(false){}
 
   bool isTurnedOn() const {return is_turned;}
   unsigned int getBrightness() const {return isTurnedOn() ? brightness : 0;}
@@ -30,16 +31,35 @@ class SmallChristmasTree {
 
 public:
   SmallChristmasTree(const std::string& type) : type(type) {}
-  SmallChristmasTree(const std::string& type, IlluminatedOrnament* top_ornament) : type(type), top_ornament(top_ornament){}
+  SmallChristmasTree(const std::string& type, const IlluminatedOrnament* top_ornament) : type(type), top_ornament(new IlluminatedOrnament(*top_ornament)){}
   SmallChristmasTree() : type("pine") {}
 
-  const std::string& getTreeType() const {return this->type;}
-  IlluminatedOrnament* getTopOrnament() const {return top_ornament ? nullptr : top_ornamen;}
+  ~SmallChristmasTree() {
+    delete top_ornament;
+  }
 
-  ornamentPlacement(IlluminatedOrnament& ornament) {
+  const std::string& getTreeType() const {return this->type;}
+  IlluminatedOrnament* getTopOrnament() const {return top_ornament ? nullptr : top_ornament;}
+
+  void ornamentPlacement(const IlluminatedOrnament& ornament) {
     //make a copy of the ornament, and not refer to the given ornament
     //the principle is the one who creates a dynamic object is responsible for cleaning him out of memor in the end
+    if (top_ornament != nullptr){delete top_ornament;}
+    top_ornament = new IlluminatedOrnament(ornament);
   }
+
+  void turnOn() {
+    if (top_ornament){++top_ornament;}
+  }
+
+  void turnOff() {
+    if (top_ornament){--top_ornament;}
+  }
+
+  unsigned int getBrightness() const {
+    return top_ornament != nullptr ? top_ornament->getBrightness() : 0;
+  }
+
 
 };
 //DO NOT WRITE ANY CODE BELOW THIS LINE

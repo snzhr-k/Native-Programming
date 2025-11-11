@@ -67,7 +67,7 @@ public:
 
     virtual string enter(const Traveller& p) override {
         if (!isActivated()) {throw std::runtime_error("inactive port");}
-        if (p.tomeg > load_capacity){throw StargateException("over the capacity");}
+        if (p.tomeg > load_capacity){throw StargateException("over the capacity ");}
 
         load_capacity -= p.tomeg;
         return Port::enter(p);
