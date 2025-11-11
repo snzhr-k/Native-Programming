@@ -20,7 +20,7 @@ public:
     return *this;
   }
   IlluminatedOrnament& operator--() {
-    is_turned = true;
+    is_turned = false;
     return *this;
   }
 };
@@ -39,7 +39,7 @@ public:
   }
 
   const std::string& getTreeType() const {return this->type;}
-  IlluminatedOrnament* getTopOrnament() const {return top_ornament ? nullptr : top_ornament;}
+  const IlluminatedOrnament* getTopOrnament() const {return top_ornament == nullptr ? nullptr : top_ornament;}
 
   void ornamentPlacement(const IlluminatedOrnament& ornament) {
     //make a copy of the ornament, and not refer to the given ornament
@@ -49,11 +49,11 @@ public:
   }
 
   void turnOn() {
-    if (top_ornament){++top_ornament;}
+    if (top_ornament){++(*top_ornament);}
   }
 
   void turnOff() {
-    if (top_ornament){--top_ornament;}
+    if (top_ornament){--(*top_ornament);}
   }
 
   unsigned int getBrightness() const {
