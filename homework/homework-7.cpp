@@ -1,100 +1,73 @@
 #include <iostream>
 #include <string>
+#include <algorithm>
+#include <set>
 
-#ifndef TRACK_INFO
-#define TRACK_INFO
-#endif
 
 using namespace std;
 
 class Directory;
 
 class FSElement {
-protected:
+    Directory* parent;
     string name;
-    Directory *parent;
-
-    FSElement(const string& name, Directory* parent) :
-      name(name), parent(parent) { }
 
 public:
-    const string& getName() const {
-        return name;
+    FSElement(Directory* parent, string name) : parent(parent), name(name) {}
+    virtual ~FSElement() = default;
+
+    Directory* getParent() const {return parent;}
+    const string& getName() const {return name;}
+
+    string getFullPath() {
+        //returns the full path of the given element, separated by the "/" character
     }
 
-    const Directory* getParent() const noexcept {
-        return parent;
-    }
+    class Comparison {
+    public:
+        bool operator()(const FSElement* f1, const FSElement* f2) const {
+            return f1->name < f2->name;
+        }
+    };
 
-    string getFullPath() const;
+    virtual void rm () = 0;
+
 };
-// WORK HERE!
 
-class File : protected FSElement {
-    string content = "";
+class File : public FSElement {
+    string content;
+
 public:
-    File(const string& name, Directory* parent) : FSElement(name, parent) { }
-    File(const string& name, Directory* parent, const string& content) : FSElement(name, parent), content(content){}
+    File(const string& name, Directory* parent, const string& content = "") :
+        FSElement(parent, name), content(content) {}
 
-    string& getContent() const {
-        return this->content;
-    }
-
-    void setContent(const string& content) {
-        this->content = content;
-    }
+    void setContent(const string& content){this->content = content;}
+    const string& getContent() const {return content;}
 
     void rm() override {
-        if (!parent){}
+
     }
 
 };
 
-class Directory {
-    set<>
+class Directory : public FSElement {
+    set<FSElement*, FSElement::Comparison> elements;
+    static Directory* root;
+
+public:
+    static Directory* getRootPtr() {}
+    static Directory& getRoot() {}
+
+    operator/(){}
+
+    operator& () {}
+
+    operator >> () {}
+
+    void ls(std::ostream& os) const {}
+
+    void cp(FSElement* element) const {}
+
+    void rm() override {}
+
 };
-
-
-// DO NOT WRITE ANY CODE BELOW THIS LINE
-#ifndef TEST_BIRO
-
-int main() {
-    Directory& root = Directory::getRoot();
-    Directory& k2 = root / "first" / "second";
-    Directory& k4 = k2 / "third" / "fourth";
-    root / "first 2";
-    root / "first 3";
-
-    k2 % "readme.txt";
-    k4 % "exercise.cpp";
-    k4 / "fifth";
-
-    std::cout << "Full path" << std::endl;
-    std::cout << k2.getFullPath() << std::endl;
-    std::cout << root.getFullPath() << std::endl;
-
-    std::cout << std::endl << "ls I." << std::endl;
-    k2.ls(std::cout);
-
-    std::cout << std::endl << "ls I." << std::endl;
-    root.ls(std::cout);
-
-    std::cout << std::endl << "operator >>" << std::endl;
-    Directory& second = root >> "first" >> "second";
-    std::cout << second.getName() << std::endl;
-
-    std::cout << std::endl << "cp" << std::endl;
-    root.cp(k2);
-    root.ls(std::cout);
-
-    std::cout << endl << "rm I." << std::endl;
-    (root >> "second").rm();
-    root.ls(std::cout);
-
-    std::cout << endl << "rm II." << std::endl;
-    root.rm();
-    root.ls(std::cout);
-
-    return 0;
-}
-#endif

@@ -5,4 +5,5 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(Native_Programming
         homework/homework-5.cpp
-        homework/homework-6.cpp)
+        homework/homework-6.cpp
+        homework/homework-7.cpp)
