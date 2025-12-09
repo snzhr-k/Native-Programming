@@ -4,4 +4,5 @@ project(Native_Programming)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(Native_Programming
-        homework/homework-08.cpp)
+        homework/homework-08.cpp
+        homework/homework-09.cpp)
