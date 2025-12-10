@@ -7,7 +7,6 @@
 #include <numeric>
 #include <sstream>
 #include <cassert>
-#include <valarray>
 
 
 //===================== DO NOT TOUCH THE TEST NAMESPACE ============
@@ -102,6 +101,7 @@ public:
   }
 
   // WORK HERE!
+
   bool operator<( const Flight& f) const {
     if (from == f.from) {
       return to < f.to;
@@ -109,6 +109,10 @@ public:
     return from < f.from;
   }
 };
+
+  // WORK HERE!
+
+#endif //MY_JARAT
 
 std::set<Flight> flight_set(const std::vector<Flight>& flights) {
   std::set<Flight> set;
@@ -183,7 +187,7 @@ std::vector<Flight> filter(const std::vector<Flight>& flights,
 void fullSort(std::vector<Flight>& flights) {
   //sort by price ascending
   test::sort(flights.begin(), flights.end(),
-    [](Flight& f1, Flight& f2) {
+    [](const Flight& f1, const Flight& f2) {
       return f1.getPrice() < f2.getPrice(); //not  sure if it's ascending
     });
 }
@@ -191,8 +195,8 @@ void fullSort(std::vector<Flight>& flights) {
 //T6
 unsigned fullCost(const std::vector<Flight>& flights, unsigned limit) {
   return test::accumulate(flights.begin(), flights.end(), 0,
-    [limit](unsigned sum, const Flight& flight) {
-      return flight.getPrice() <= limit ? sum + flight.getPrice() : sum;
+    [limit](const unsigned sum, const Flight& flight) {
+      return flight.getPrice() < limit ? sum + flight.getPrice() : sum;
     });
 }
 
@@ -209,8 +213,6 @@ std::vector<Flight> sales(const std::vector<Flight>& flights, const unsigned dis
 
   return result;
 }
-
-#endif //MY_JARAT
 
 // WORK HERE!
 
